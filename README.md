@@ -75,7 +75,7 @@ BACKEND=postgres
 POSTGRES_URI=postgresql+asyncpg://user:pass@db:5432/tabular_api
 
 
-# construa e rode os containers
+# Construa e rode os containers
 docker compose up -d --build
 
 A stack levanta dois serviços:
