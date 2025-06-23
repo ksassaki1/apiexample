@@ -66,8 +66,8 @@ Tudo já vem conteinerizado com **Docker Compose** e acompanhado de um **Jupyter
 ## ✈️ Subindo tudo com Docker Compose
 
 # Clone o repositório
-git clone https://github.com/ksassaki1/tabular-api.git
-cd tabular-api
+* git clone https://github.com/ksassaki1/tabular-api.git
+* cd tabular-api
 
 # Crie o arquivo .env com backend e string de conexão
 BACKEND=postgres
