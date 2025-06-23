@@ -71,6 +71,7 @@ cd tabular-api
 
 # crie o arquivo .env com backend e string de conexão
 BACKEND=postgres
+
 POSTGRES_URI=postgresql+asyncpg://user:pass@db:5432/tabular_api
 
 
