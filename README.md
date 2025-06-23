@@ -137,8 +137,7 @@ Execute notebooks/ex.ipynb para:
 * asyncpg>=0.29
 * pydantic-settings>=2.1
 * matplotlib>=3.9
-# Opcional para MongoDB
-* motor>=3.4
+* motor>=3.4 (Opcional para MongoDB)
 
 
 ## 🔮 Próximos passos
