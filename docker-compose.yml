@@ -1,0 +1,29 @@
+version: "3.9"
+
+services:
+  # ---------- Banco de dados ----------
+  db:
+    image: postgres:16
+    restart: always
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+      POSTGRES_DB: tabular_api
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"       # opcional expor na máquina host
+
+  # ---------- API FastAPI ----------
+  api:
+    build: .              # usa o Dockerfile na raiz
+    depends_on:
+      - db                # garante que o Postgres suba antes
+    env_file:
+      - .env              # carrega BACKEND e POSTGRES_URI
+    ports:
+      - "8001:8001"       # http://localhost:8001
+    restart: on-failure
+
+volumes:
+  pgdata:

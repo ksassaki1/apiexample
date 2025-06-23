@@ -1,130 +1,161 @@
-# 🧑‍💻 **Projeto de Processamento de Dados Tabulares via API**
+# 🧑‍💻 Processamento de Dados Tabulares — API FastAPI + PostgreSQL
 
-Este projeto demonstra como criar uma API em **FastAPI** para receber arquivos CSV, processar dados tabulares com **pandas** e retornar estatísticas agregadas (soma, média e contagem), tanto no geral quanto por categoria. Inclui containerização com **Docker** e um **Jupyter Notebook** que exemplifica o consumo do endpoint de forma prática.
+Este repositório demonstra como criar uma API **FastAPI** que  
 
----
+1. recebe arquivos CSV via `multipart/form-data`;  
+2. grava o conteúdo em **PostgreSQL** (ou MongoDB, se `BACKEND=mongo`);  
+3. devolve estatísticas agregadas (soma, média e contagem) em JSON, tanto gerais quanto por categoria.
 
-## 🎯 **Objetivo**
-- Construir um endpoint `/upload-csv` capaz de receber CSVs via multipart/form-data e gerar respostas em JSON com estatísticas agregadas.
-- Mostrar, em um **notebook interativo**, como consumir a API, carregar o CSV e visualizar os resultados em DataFrames e gráficos simples.
-
----
-
-## 🛠 **Tecnologias e Ferramentas Usadas**
-- **Linguagem:** Python
-- **Framework de API:** FastAPI
-- **Bibliotecas:**
-  - `pandas`: Leitura e processamento de dados tabulares
-  - `FastAPI`: Criação de rotas REST e tratamento de uploads
-  - `uvicorn[standard]`: Servidor ASGI para executar a aplicação
-  - `python-multipart`: Suporte ao upload de arquivos via FastAPI
-  - `requests`: Requisições HTTP no notebook de exemplo
-  - `matplotlib`: Visualização de gráficos no Jupyter Notebook
-- **Containerização:** Docker
-- **Ambiente Interativo:** Jupyter Notebook
+Tudo já vem conteinerizado com **Docker Compose** e acompanhado de um **Jupyter Notebook** que exemplifica o consumo do endpoint.
 
 ---
 
-## 📂 **Estrutura do Projeto**
-    .
-    ├── app/
-    │   ├── __init__.py
-    │   ├── main.py
-    │   └── data/
-    │       └── sample_data.csv
-    │
-    ├── notebooks/
-    │   └── tabular_api_example.ipynb
-    │
-    ├── requirements.txt
-    ├── Dockerfile
-    └── README.md
+## 🎯 Objetivos
 
-- **app/main.py**: Contém a lógica do FastAPI, com o endpoint `/upload-csv` que lê o CSV, calcula estatísticas (total, média, contagem) e agrupa por categoria.  
-- **app/data/sample_data.csv**: CSV de exemplo com colunas `id`, `data`, `categoria` e `valor`, usado para testar o endpoint.  
-- **notebooks/tabular_api_example.ipynb**: Notebook que demonstra o uso da API: carrega o CSV local, faz requisição ao endpoint e exibe DataFrames e gráficos.  
-- **requirements.txt**: Lista todas as dependências do Python necessárias, incluindo FastAPI, pandas e uvicorn.  
-- **Dockerfile**: Define a imagem Docker para rodar a aplicação, instalando dependências e expondo a porta 8000.  
-- **README.md**: Documentação deste repositório.
+* **Endpoint `/v1/upload-csv`**  
+  * valida as colunas obrigatórias (`categoria`, `valor`);  
+  * persiste os dados no banco;  
+  * devolve as estatísticas agregadas geradas em *pandas*.  
+
+* **Arquitetura modular** – configuração, ingestão, persistência e rota em módulos separados.  
+
+* **Exemplo interativo** – o notebook `notebooks/ex.ipynb` mostra como enviar o CSV e visualizar o retorno.
 
 ---
 
-## 🧠 **Métodos Implementados**
-- **Endpoint `/upload-csv`**  
-  - Recebe um arquivo CSV via `UploadFile`  
-  - Valida se o arquivo termina com `.csv`  
-  - Lê o conteúdo em um DataFrame pandas  
-  - Verifica a presença das colunas `categoria` e `valor`  
-  - Calcula:
-    - `total_geral`: soma de todos os valores  
-    - `media_geral`: média de todos os valores  
-    - `contagem_geral`: número total de registros  
-  - Agrupa por `categoria` e retorna soma, média e contagem para cada grupo  
-  - Retorna um JSON com as estatísticas no formato:
-        {
-          "total_geral": float,
-          "media_geral": float,
-          "contagem_geral": int,
-          "agregados_por_categoria": [
-            { "categoria": "A", "sum": float, "mean": float, "count": int },
-            ...
-          ]
-        }
+## 🛠 Tecnologias
 
-- **Notebook de Exemplo**  
-  - Mostra como instalar dependências (caso rode fora de Docker)  
-  - Carrega `sample_data.csv` em um DataFrame  
-  - Envia o arquivo para a rota `/upload-csv` usando `requests`  
-  - Converte o JSON de resposta em DataFrames pandas  
-  - Exibe as estatísticas gerais e por categoria  
-  - Gera um gráfico de barras ilustrando a soma por categoria
+| Camada            | Ferramentas principais                                                 |
+|-------------------|------------------------------------------------------------------------|
+| **API**           | FastAPI · Uvicorn · Pydantic (`pydantic-settings`)                     |
+| **Processamento** | pandas                                                                 |
+| **Persistência**  | **PostgreSQL + SQLAlchemy (assíncrono)**  (opcional → MongoDB + Motor) |
+| **Infra**         | Docker · Docker Compose                                               |
+| **Interativo**    | Jupyter Notebook · matplotlib                                          |
 
 ---
 
-## 📊 **Resultados Obtidos**
-Ao enviar o CSV de exemplo, a API retorna corretamente os seguintes valores:
-    {
-      "total_geral": 1691.6,
-      "media_geral": 169.16,
-      "contagem_geral": 10,
-      "agregados_por_categoria": [
-        { "categoria": "A", "sum": 365.5, "mean": 91.375, "count": 4 },
-        { "categoria": "B", "sum": 405.75, "mean": 135.25, "count": 3 },
-        { "categoria": "C", "sum": 700.25, "mean": 350.125, "count": 2 },
-        { "categoria": "D", "sum": 220.1, "mean": 220.1, "count": 1 }
-      ]
-    }
-Esses valores conferem com o cálculo manual dos dados em `sample_data.csv`. O notebook ilustra a visualização gráfica desses resultados, facilitando a interpretação.
+## 📂 Estrutura do projeto
 
----
+```text
+.
+├── app
+│   ├── api
+│   │   └── v1
+│   │       └── routes_upload.py      # rota /v1/upload-csv
+│   ├── core
+│   │   ├── config.py                 # carrega variáveis (.env)
+│   │   └── db.py                     # engine Postgres / client Mongo
+│   ├── data
+│   │   └── sample_data.csv
+│   ├── models
+│   │   └── record.py                 # esquema Pydantic (opcional)
+│   ├── services
+│   │   ├── csv_loader.py             # leitura/validação do CSV
+│   │   └── persistence.py            # grava DataFrame no banco
+│   ├── main.py                       # instancia FastAPI e inclui rotas
+│   └── __init__.py
+├── docker-compose.yml                # Postgres + API
+├── Dockerfile                        # imagem da aplicação
+├── notebooks
+│   └── ex.ipynb                      # demonstração de uso
+├── requirements.txt
+└── README.md
+```
 
-## 📷 **Exemplo de Uso**
-1. **Rodando o container Docker**  
-       docker build -t tabular-api .  
-       docker run -d --name tabular-api -p 8000:8000 tabular-api  
+## ✈️ Subindo tudo com Docker Compose
 
-2. **Acessando o Swagger UI**  
-   No navegador, abra:  
-       http://localhost:8000/docs  
-   e teste o envio de um arquivo CSV diretamente pela interface.
+# clone o repositório
+git clone https://github.com/<seu-usuario>/tabular-api.git
+cd tabular-api
 
-3. **Notebook de Demonstração**  
-   Abra o Jupyter Notebook em `notebooks/tabular_api_example.ipynb` e execute as células para:  
-   - Carregar `sample_data.csv`  
-   - Fazer requisição ao endpoint `/upload-csv`  
-   - Exibir DataFrames e gráfico de barras da soma por categoria
+# crie o arquivo .env com backend e string de conexão
+cat <<EOF > .env
+BACKEND=postgres
+POSTGRES_URI=postgresql+asyncpg://user:pass@db:5432/tabular_api
+EOF
 
----
+# construa e rode os containers
+docker compose up -d --build
 
-## 🚀 **Próximos Passos**
-- **Validação mais robusta**: Implementar checagens de esquema (schema validation) para garantir que o CSV contenha colunas adicionais ou tipos de dados esperados.  
-- **Pipelines de CI/CD**: Configurar GitHub Actions para executar testes automatizados e build Docker a cada commit.  
-- **Adição de modelo preditivo**: Incorporar um endpoint extra que faça previsões simples usando scikit-learn sobre os dados enviados.  
-- **Interface Web**: Criar um frontend em React ou Streamlit que permita arrastar e soltar o CSV e visualizar os gráficos dinamicamente.  
-- **Configuração de HTTPS**: Adicionar um proxy reverso (nginx ou Traefik) para servir a API com certificado Let’s Encrypt.
+A stack levanta dois serviços:
 
----
+    db → Postgres 16 (db:5432 dentro da rede)
 
-## 👤 **Autor**
-Guilherme Koiti Tanaka Sassaki  
+    api → FastAPI em http://localhost:8001
+
+
+## 🚀 Usando a API
+
+
+1 · Swagger UI
+
+Acesse http://localhost:8001/docs e faça upload de app/data/sample_data.csv.
+
+2 · cURL
+
+curl -F "file=@app/data/sample_data.csv" \
+     http://localhost:8001/v1/upload-csv
+
+Resposta típica:
+
+```
+
+{
+  "total_geral": 1691.6,
+  "media_geral": 169.16,
+  "contagem_geral": 10,
+  "agregados_por_categoria": [
+    {"categoria": "A", "sum": 365.5, "mean": 91.375, "count": 4},
+    {"categoria": "B", "sum": 405.75, "mean": 135.25, "count": 3},
+    {"categoria": "C", "sum": 700.25, "mean": 350.125, "count": 2},
+    {"categoria": "D", "sum": 220.1,  "mean": 220.1,   "count": 1}
+  ]
+}
+
+```
+
+3 · Notebook
+
+Execute notebooks/ex.ipynb para:
+
+    1-carregar o CSV de exemplo;
+
+    2-enviá-lo ao endpoint;
+
+    3-transformar o JSON em DataFrames;
+
+    4-plotar a soma por categoria.
+
+## 📝 Requisitos (pip)
+
+fastapi>=0.111
+uvicorn[standard]>=0.29
+pandas>=2.2
+python-multipart>=0.0.9
+SQLAlchemy>=2.0
+asyncpg>=0.29
+pydantic-settings>=2.1
+matplotlib>=3.9
+# opcional para MongoDB
+motor>=3.4
+
+
+## 🔮 Próximos passos
+
+**Validação de esquema** – pandera ou Great Expectations.
+
+**Autenticação** – OAuth2 + JWT e rate-limiting.
+
+**CI/CD** – GitHub Actions rodando testes e build da imagem.
+
+**Uploads grandes** – leitura em chunks de 50 k linhas.
+
+**Frontend em Streamlit** - para drag-and-drop e visualização dinâmica.
+
+**HTTPS** – Nginx + Let’s Encrypt como proxy reverso.
+
+## 👤 Autor
+
+Guilherme Koiti Tanaka Sassaki
 [LinkedIn](https://www.linkedin.com/in/guilherme-sassaki-10b81ba7/)  
