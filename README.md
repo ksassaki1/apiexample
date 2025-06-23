@@ -129,16 +129,16 @@ Execute notebooks/ex.ipynb para:
 
 ## 📝 Requisitos (pip)
 
-*fastapi>=0.111
-*uvicorn[standard]>=0.29
-*pandas>=2.2
-*python-multipart>=0.0.9
-*SQLAlchemy>=2.0
-*asyncpg>=0.29
-*pydantic-settings>=2.1
-*matplotlib>=3.9
-# opcional para MongoDB
-*motor>=3.4
+* fastapi>=0.111
+* uvicorn[standard]>=0.29
+* pandas>=2.2
+* python-multipart>=0.0.9
+* SQLAlchemy>=2.0
+* asyncpg>=0.29
+* pydantic-settings>=2.1
+* matplotlib>=3.9
+# Opcional para MongoDB
+* motor>=3.4
 
 
 ## 🔮 Próximos passos
