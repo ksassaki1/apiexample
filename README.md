@@ -83,6 +83,7 @@ Este projeto demonstra como criar uma API em **FastAPI** para receber arquivos C
 
 ## 📊 **Resultados Obtidos**
 Ao enviar o CSV de exemplo, a API retorna corretamente os seguintes valores:
+
     {
       "total_geral": 1691.6,
       "media_geral": 169.16,
@@ -94,6 +95,7 @@ Ao enviar o CSV de exemplo, a API retorna corretamente os seguintes valores:
         { "categoria": "D", "sum": 220.1, "mean": 220.1, "count": 1 }
       ]
     }
+    
 Esses valores conferem com o cálculo manual dos dados em `sample_data.csv`. O notebook ilustra a visualização gráfica desses resultados, facilitando a interpretação.
 
 ---
